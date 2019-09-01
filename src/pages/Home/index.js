@@ -1,107 +1,67 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { MdAddShoppingCart } from 'react-icons/md';
+
+import * as CartActions from '../../store/modules/cart/actions';
 
 import { ProductList } from './styles';
 
-export default function Home() {
-  return (
-    <ProductList>
-      <li>
-        <img
-          alt="Shoe"
-          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_detalhe1.jpg?resize=280:280"
-        />
-        <strong>Really cool shoe</strong>
-        <span>129,90</span>
+import api from '../../services/api';
+import { formatPrice } from '../../util/format';
 
-        <button>
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" />
-          </div>
+class Home extends Component {
+  state = {
+    products: [],
+  };
 
-          <span>ADD TO CART</span>
-        </button>
-      </li>
-      <li>
-        <img
-          alt="Shoe"
-          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_detalhe1.jpg?resize=280:280"
-        />
-        <strong>Really cool shoe</strong>
-        <span>129,90</span>
+  async componentDidMount() {
+    const response = await api.get('products');
+    const data = response.data.map(product => ({
+      ...product,
+      priceFormated: formatPrice(product.price),
+    }));
 
-        <button>
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" />
-          </div>
+    this.setState({ products: data });
+  }
 
-          <span>ADD TO CART</span>
-        </button>
-      </li>
-      <li>
-        <img
-          alt="Shoe"
-          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_detalhe1.jpg?resize=280:280"
-        />
-        <strong>Really cool shoe</strong>
-        <span>129,90</span>
+  handleProductAdd = product => {
+    const { addToCart } = this.props;
 
-        <button>
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" />
-          </div>
+    addToCart(product);
+  };
 
-          <span>ADD TO CART</span>
-        </button>
-      </li>
-      <li>
-        <img
-          alt="Shoe"
-          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_detalhe1.jpg?resize=280:280"
-        />
-        <strong>Really cool shoe</strong>
-        <span>129,90</span>
+  render() {
+    const { products } = this.state;
 
-        <button>
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" />
-          </div>
+    return (
+      <ProductList>
+        {products.map(product => (
+          <li key={product.id}>
+            <img alt={product.title} src={product.image} />
+            <strong>{product.title}</strong>
+            <span>{product.priceFormated}</span>
 
-          <span>ADD TO CART</span>
-        </button>
-      </li>
-      <li>
-        <img
-          alt="Shoe"
-          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_detalhe1.jpg?resize=280:280"
-        />
-        <strong>Really cool shoe</strong>
-        <span>129,90</span>
+            <button
+              type="button"
+              onClick={() => this.handleProductAdd(product)}
+            >
+              <div>
+                <MdAddShoppingCart size={16} color="#FFF" />
+              </div>
 
-        <button>
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" />
-          </div>
-
-          <span>ADD TO CART</span>
-        </button>
-      </li>
-      <li>
-        <img
-          alt="Shoe"
-          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_detalhe1.jpg?resize=280:280"
-        />
-        <strong>Really cool shoe</strong>
-        <span>129,90</span>
-
-        <button>
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF" />
-          </div>
-
-          <span>ADD TO CART</span>
-        </button>
-      </li>
-    </ProductList>
-  );
+              <span>ADD TO CART</span>
+            </button>
+          </li>
+        ))}
+      </ProductList>
+    );
+  }
 }
+
+const mapDispatchToPros = dispatch => bindActionCreators(CartActions, dispatch);
+
+export default connect(
+  null,
+  mapDispatchToPros
+)(Home);
